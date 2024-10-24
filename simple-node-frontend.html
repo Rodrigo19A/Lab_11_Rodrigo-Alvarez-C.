@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Usuarios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        form {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema de Usuarios</h1>
+        
+        <form id="userForm">
+            <h3>Crear Nuevo Usuario</h3>
+            <div>
+                <input type="text" id="nombre" placeholder="Nombre" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <button type="submit">Crear Usuario</button>
+            </div>
+        </form>
+
+        <h3>Lista de Usuarios</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody id="userList">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Función para cargar usuarios
+        function loadUsers() {
+            fetch('http://localhost:3000/api/users')
+                .then(response => response.json())
+                .then(users => {
+                    const userList = document.getElementById('userList');
+                    userList.innerHTML = '';
+                    users.forEach(user => {
+                        userList.innerHTML += `
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.nombre}</td>
+                                <td>${user.email}</td>
+                            </tr>
+                        `;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al cargar usuarios');
+                });
+        }
+
+        // Manejar el envío del formulario
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userData = {
+                nombre: document.getElementById('nombre').value,
+                email: document.getElementById('email').value
+            };
+
+            fetch('http://localhost:3000/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadUsers();
+                document.getElementById('userForm').reset();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al crear usuario');
+            });
+        });
+
+        // Cargar usuarios al iniciar la página
+        loadUsers();
+    </script>
+</body>
+</html>
